@@ -5,6 +5,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { Header, Menu, Icon, Button, Sidebar, Segment, Dimmer, Loader, Form, Input, Container, Grid, List, Modal } from "semantic-ui-react";
+import { decodeProgram, encodeProgram } from "./encode";
 
 declare let snowFall: any;
 
@@ -42,7 +43,7 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
 
         const hasCookie = this.readCookie("makecode-holiday-cookie-msg");
 
-        const shareURL = window.location.hash ? window.location.hash.substring(3) : undefined;
+        const shareURL = window.location.hash ? window.location.hash.substring(1) : undefined;
         this.state = {
             isLoading: true,
             loadShareURL: shareURL,
@@ -212,26 +213,25 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
                         "categories": false
                     }
                     if (this.state.loadShareURL) {
-                        this.lookupGist(this.state.loadShareURL)
-                            .then((content: any) => {
-                                this.currentProject = {
-                                    'text': {
-                                        "main.blocks": JSON.parse(content["main.blocks"]['content']),
-                                        "main.ts": JSON.parse(content["main.ts"]['content']),
-                                        "README.md": " ",
-                                        "pxt.json": "{\n    \"name\": \"Untitled\",\n    \"dependencies\": {\n        \"core\": \"*\"\n    },\n    \"description\": \"\",\n    \"files\": [\n        \"main.blocks\",\n        \"main.ts\",\n        \"README.md\"\n    ]\n}"
-                                    }
-                                }
-                            }).then(() => {
-                                localStorage.setItem('currentProject', JSON.stringify(this.currentProject));
-                                msg.projects = [this.currentProject];
-                                // console.log("workspacesync")
-                                // console.log(JSON.stringify(this.currentProject, null, 2))
-                                editor.postMessage(msg, "*")
-                                this.loaded = true;
-                                if (!this.state.loadShareURL) this.setState({ isLoading: false });
-                                gtag('event', 'lookup', { 'method': 'gist' });
-                            })
+                        const xml = decodeProgram(this.state.loadShareURL);
+
+                        this.currentProject = {
+                            'text': {
+                                "main.blocks": xml,
+                                "main.ts": "\n",
+                                "README.md": " ",
+                                "pxt.json": "{\n    \"name\": \"Untitled\",\n    \"dependencies\": {\n        \"core\": \"*\"\n    },\n    \"description\": \"\",\n    \"files\": [\n        \"main.blocks\",\n        \"main.ts\",\n        \"README.md\"\n    ]\n}"
+                            }
+                        }
+
+                        localStorage.setItem('currentProject', JSON.stringify(this.currentProject));
+                        msg.projects = [this.currentProject];
+                        // console.log("workspacesync")
+                        // console.log(JSON.stringify(this.currentProject, null, 2))
+                        editor.postMessage(msg, "*")
+                        this.loaded = true;
+                        if (!this.state.loadShareURL) this.setState({ isLoading: false });
+                        gtag('event', 'lookup', { 'method': 'gist' });
                     } else {
                         const currentProject = localStorage.getItem('currentProject');
                         if (currentProject) {
@@ -311,7 +311,7 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
             filters: this.filters,
             response: true
         })
-        this.toggleTrace();
+        // this.toggleTrace();
     }
 
     private text: string = "";
@@ -370,9 +370,10 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
     private player: any;
     beginSharing() {
         // Begin music
-        this.player = new Tone.Player("./sounds/Jingle_Bells_Instrumental.mp3").toMaster();
-        this.player.autostart = true;
+        // this.player = new Tone.Player("./sounds/Jingle_Bells_Instrumental.mp3").toMaster();
+        // this.player.autostart = true;
         // Begin snowing
+
         setTimeout(() => {
             snowFall.snow(document.body, { round: true, shadow: true, maxSpeed: 5, flakeCount: 10, minSize: 3, maxSize: 8 });
         }, 1000);
@@ -380,7 +381,7 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
 
     stopSharing() {
         // Stop the music
-        this.player.stop();
+        // this.player.stop();
         // Clear the snow
         snowFall.snow(document.body, "clear");
     }
@@ -388,8 +389,11 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
     toggleSharing() {
         this.setState({ isSharing: !this.state.isSharing });
         if (!this.state.isSharing) {
-            // Create a gist
-            this.publishGist();
+
+            window.location.hash = encodeProgram(this.currentProject.text["main.blocks"]);
+            // Set form url to path
+            this.setState({ shareURL: window.location.href });
+
             this.sendMessage("proxytosim", {
                 type: "hidemaineditor"
             });
@@ -430,49 +434,6 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
         } catch (err) {
             console.log('Oops, unable to copy');
         }
-    }
-
-    publishGist() {
-        gtag('event', 'sharing', { 'method': 'gist' });
-        const data = {
-            "description": 'My MakeCode Holiday project',
-            "public": false,
-            "files": {
-                "main.blocks": {
-                    "content": JSON.stringify(this.currentProject.text['main.blocks'])
-                },
-                "main.ts": {
-                    "content": JSON.stringify(this.currentProject.text['main.ts'])
-                }
-            }
-        };
-        const headers: any = {};
-        const url = "https://api.github.com/gists";
-        fetch(url, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(data)
-        }).then((response) => {
-            return response.json();
-        }).then((json) => {
-            console.log(json);
-            window.location.hash = `s:${json['id']}`;
-            // Set form url to path
-            this.setState({ shareURL: window.location.href });
-        });
-    }
-
-    lookupGist(guid: string): Promise<string> {
-        const url = `https://api.github.com/gists/${guid}`;
-        //eg: https://api.github.com/gists/945d8adf90573feaa315d8e2074f2433
-        return fetch(url, {
-            method: 'GET'
-        }).then((response) => {
-            return response.json();
-        }).then((json) => {
-            console.log(json);
-            return json['files'];
-        });
     }
 
     popupWindow(url: string, title: string, width: number, height: number) {
