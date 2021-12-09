@@ -44907,6 +44907,8 @@ var React = __webpack_require__(/*! react */ "react");
 var ReactDOM = __webpack_require__(/*! react-dom */ "react-dom");
 var semantic_ui_react_1 = __webpack_require__(/*! semantic-ui-react */ "./node_modules/semantic-ui-react/dist/es/index.js");
 var encode_1 = __webpack_require__(/*! ./encode */ "./src/encode.ts");
+function gtag(a, b, c) {
+}
 var MainApp = (function (_super) {
     __extends(MainApp, _super);
     function MainApp(props) {
