@@ -607,7 +607,7 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
                     <Modal.Content>
                         <Modal.Description>
                             <p>A Blocks / JavaScript code editor for the holidays powered by <a href="www.makecode.com" target="_blank" rel="noopener noreferrer">Microsoft MakeCode.</a></p>
-                            <p><a href="https://github.com/microsoftsam/pxt-holidays" target="_blank" rel="noopener noreferrer">microsoftsam.github.io/pxt-holidays</a> version: 0.0.1</p>
+                            <p><a href="https://github.com/microsoft/makecode-holiday" target="_blank" rel="noopener noreferrer">microsoft.github.io/makecode-holiday</a> version: 0.0.1</p>
                             <p>Microsoft MakeCode version: 2.2.4</p>
 
                             <b> Built with:</b>
