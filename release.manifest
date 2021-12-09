@@ -1,0 +1,66 @@
+CACHE MANIFEST
+
+CACHE:
+/makecode-holiday/semantic.js
+/makecode-holiday/main.js
+/makecode-holiday/pxtapp.js
+/makecode-holiday/typescript.js
+/makecode-holiday/marked/marked.min.js
+/makecode-holiday/highlight.js/highlight.pack.js
+/makecode-holiday/jquery.js
+/makecode-holiday/pxtlib.js
+/makecode-holiday/pxtcompiler.js
+/makecode-holiday/pxtblockly.js
+/makecode-holiday/pxtwinrt.js
+/makecode-holiday/pxteditor.js
+/makecode-holiday/pxtsim.js
+/makecode-holiday/pxtembed.js
+/makecode-holiday/pxtworker.js
+/makecode-holiday/pxtweb.js
+/makecode-holiday/blockly.css
+/makecode-holiday/semantic.css
+/makecode-holiday/rtlsemantic.css
+
+
+/makecode-holiday/editor.js
+
+
+# blockly
+/makecode-holiday/blockly/media/sprites.png
+/makecode-holiday/blockly/media/click.mp3
+/makecode-holiday/blockly/media/disconnect.wav
+/makecode-holiday/blockly/media/delete.mp3
+
+# monaco; keep in sync with webapp/public/index.html
+/makecode-holiday/vs/loader.js
+/makecode-holiday/vs/base/worker/workerMain.js
+/makecode-holiday/vs/basic-languages/src/bat.js
+/makecode-holiday/vs/basic-languages/src/cpp.js
+/makecode-holiday/vs/editor/editor.main.css
+/makecode-holiday/vs/editor/editor.main.js
+/makecode-holiday/vs/editor/editor.main.nls.js
+/makecode-holiday/vs/language/json/jsonMode.js
+/makecode-holiday/vs/language/json/jsonWorker.js
+/makecode-holiday/vs/language/typescript/lib/typescriptServices.js
+/makecode-holiday/vs/language/typescript/src/mode.js
+/makecode-holiday/vs/language/typescript/src/worker.js
+
+# charts
+/makecode-holiday/smoothie/smoothie_compressed.js
+/makecode-holiday/images/Bars_black.gif
+
+# ai
+/makecode-holiday/ai.0.js
+
+/makecode-holiday/worker.js
+/makecode-holiday/monacoworker.js
+
+# ver Thu Dec 09 2021 11:16:17 GMT-0800 (Pacific Standard Time)
+
+# target
+
+
+/makecode-holiday/target.js
+  
+NETWORK:
+*

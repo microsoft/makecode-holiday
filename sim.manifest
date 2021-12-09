@@ -1,0 +1,10 @@
+CACHE MANIFEST
+
+CACHE:
+/makecode-holiday/bluebird.min.js
+/makecode-holiday/pxtsim.js
+/makecode-holiday/sim.js
+/makecode-holiday/sim.css
+
+NETWORK:
+*
