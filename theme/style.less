@@ -1,0 +1,85 @@
+/* Import all components */
+@import 'semantic';
+@import 'pxt';
+@import 'themes/default/globals/site.variables';
+@import 'themes/pxt/globals/site.variables';
+@import 'site/globals/site.variables';
+
+/* Reference import */
+@import (reference) "semantic.less";
+
+/*******************************
+    Add your custom CSS here
+*******************************/
+
+#maineditor {
+    left: 0;
+    right: 0;
+}
+#blocksEditor {
+    right: 50%;
+    max-width: 50%;
+}
+
+#editorlogo {
+    display: none !important;
+}
+
+.footer {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    height: 110px; /*53px;*/
+    width: 100%;
+    background-color: #FEFEFE;
+    z-index: 1;
+    left: 0; right: 0;
+}
+
+#blocksEditor {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    background-size: contain;
+    background-position: top;
+    background-repeat: no-repeat;
+}
+
+.hideMenuBar #maineditor {
+    top: 2.85714286em !important;
+}
+
+#filelist .ui.item {
+    display: none !important;
+}
+
+#filelist {
+    z-index: 0 !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+}
+
+.blocklyFlyout {
+    width: 230px;
+}
+
+/* Mobile */
+@media only screen and (max-width: @largestMobileScreen) {
+    div.simframe {
+        padding-bottom: inherit !important;
+    }
+}
+
+/* Tablet */
+@media only screen and (min-width: @tabletBreakpoint) and (max-width: @largestTabletScreen) {
+    div.simframe {
+        padding-bottom: inherit !important;
+    }
+}
+
+/* Small Monitor */
+@media only screen and (min-width: @computerBreakpoint) and (max-width: @largestSmallMonitor) {
+}
+
+/* Large Monitor */
+@media only screen and (min-width: @largeMonitorBreakpoint) {
+}

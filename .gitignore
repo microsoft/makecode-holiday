@@ -102,3 +102,21 @@ dist
 
 # TernJS port file
 .tern-port
+
+node_modules
+pxt_modules
+*.sw?
+built
+typings/
+tmp/
+*.ts.new
+temp/
+projects/
+packaged
+gh-pages
+_locales
+package-lock.json
+.vscode/ipch
+*.code-workspace
+*.DS_STORE
+.pxt/

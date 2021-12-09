@@ -1,0 +1,49 @@
+{
+    "name": "pxt-holidays-site",
+    "version": "0.0.1",
+    "description": "MakeCode Target to celebrate the holiday season",
+    "keywords": [
+        "JavaScript",
+        "education",
+        "MakeCode"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/samelhusseini/pxt-holidays.git"
+    },
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://github.com/samelhusseini/pxt-holidays#readme",
+    "scripts": {
+        "build:dev": "./node_modules/.bin/webpack --mode development --config webpack.config.js --watch",
+        "build:prod": "./node_modules/.bin/webpack --mode production --config webpack.config.js",
+        "start": "npm run build:dev",
+        "predeploy": "npm run build:prod",
+        "deploy": "gh-pages -d dist"
+    },
+    "devDependencies": {
+        "eventemitter3": "3.1.0",
+        "gh-pages": "^2.0.1",
+        "express": "^4.16.4",
+        "autoprefixer": "9.3.1",
+        "awesome-typescript-loader": "^5.2.1",
+        "source-map-loader": "^0.2.4",
+        "webpack": "^4.26.1",
+        "webpack-cli": "^3.1.2",
+        "semantic-ui-css": "2.4.1",
+        "typescript": "^3.1.6",
+        "ts-loader": "^5.3.1",
+        "tslint-microsoft-contrib": "5.2.1",
+        "tslint": "5.11.0",
+        "@types/react": "^16.7.7",
+        "@types/react-dom": "^16.0.11",
+        "@types/react-router-dom": "^4.2.1"
+    },
+    "dependencies": {
+        "react": "^16.1.0",
+        "react-dom": "^16.1.0",
+        "react-moment": "^0.6.8",
+        "react-router-dom": "^4.2.2",
+        "semantic-ui-react": "0.84.0"
+    }
+}
