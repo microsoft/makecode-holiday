@@ -44907,27 +44907,43 @@ var React = __webpack_require__(/*! react */ "react");
 var ReactDOM = __webpack_require__(/*! react-dom */ "react-dom");
 var semantic_ui_react_1 = __webpack_require__(/*! semantic-ui-react */ "./node_modules/semantic-ui-react/dist/es/index.js");
 var encode_1 = __webpack_require__(/*! ./encode */ "./src/encode.ts");
-function gtag(a, b, c) {
+function tickEvent(id, data) {
+    if (!data)
+        pxt.aiTrackEvent(id);
+    else {
+        var props = {
+            "isMakeCodeHolidays": "true"
+        };
+        var measures = {};
+        for (var _i = 0, _a = Object.keys(data); _i < _a.length; _i++) {
+            var key = _a[_i];
+            if (typeof data[key] == "string") {
+                props[key] = data[key];
+            }
+            else if (typeof data[key] == "number") {
+                measures[key] = data[key];
+            }
+            else {
+                props[key] = JSON.stringify(data[key]);
+            }
+        }
+        pxt.aiTrackEvent(id, props, measures);
+    }
 }
+;
 var MainApp = (function (_super) {
     __extends(MainApp, _super);
     function MainApp(props) {
         var _this = _super.call(this, props) || this;
-        _this.text = "";
-        _this.background = "FE6666";
-        _this.lightBuffer = ["0xffce54", "0xed5564", "0xa0d468"];
-        _this.showLights = false;
         _this.handleEditorFrameRef = function (e) {
             _this.editorFrame = e;
         };
-        var hasCookie = _this.readCookie("makecode-holiday-cookie-msg");
         var shareURL = window.location.hash ? window.location.hash.substring(1) : undefined;
         _this.state = {
             isLoading: true,
             loadShareURL: shareURL,
             shareURL: undefined,
-            isSharing: !!shareURL,
-            cookieMsg: !!hasCookie
+            isSharing: !!shareURL
         };
         _this.initDefaultProject();
         _this.filters = {
@@ -44957,7 +44973,6 @@ var MainApp = (function (_super) {
         };
         _this.copy = _this.copy.bind(_this);
         _this.play = _this.play.bind(_this);
-        _this.closeCookie = _this.closeCookie.bind(_this);
         _this.startOver = _this.startOver.bind(_this);
         _this.toggleSidebar = _this.toggleSidebar.bind(_this);
         _this.handleFacebook = _this.handleFacebook.bind(_this);
@@ -45068,7 +45083,7 @@ var MainApp = (function (_super) {
                         this.loaded = true;
                         if (!this.state.loadShareURL)
                             this.setState({ isLoading: false });
-                        gtag('event', 'lookup', { 'method': 'gist' });
+                        tickEvent("holidays.loadedShareURL");
                     }
                     else {
                         var currentProject = localStorage.getItem('currentProject');
@@ -45128,7 +45143,7 @@ var MainApp = (function (_super) {
         }
     };
     MainApp.prototype.startOver = function () {
-        gtag('event', 'startover', { 'method': 'sim' });
+        tickEvent("holidays.startover");
         if (this.isSharing())
             this.toggleSharing();
         this.initDefaultProject();
@@ -45140,14 +45155,14 @@ var MainApp = (function (_super) {
     };
     MainApp.prototype.handleFacebook = function () {
         console.log("sharing with facebook");
-        gtag('event', 'sharingfb', { 'method': 'facebook' });
+        tickEvent("holidays.facebook");
         var url = window.location.href;
         var fbUrl = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url);
         this.popupWindow(fbUrl, "Share on Facebook", 600, 600);
     };
     MainApp.prototype.handleTwitter = function () {
         console.log("sharing with twitter");
-        gtag('event', 'sharingtw', { 'method': 'twitter' });
+        tickEvent("holidays.twitter");
         var url = window.location.href;
         var twitterText = "Check out what I made with @MSMakeCode (experimental)!";
         var twitterUrl = "https://twitter.com/intent/tweet?url=" + encodeURIComponent(url) +
@@ -45190,6 +45205,7 @@ var MainApp = (function (_super) {
         var _this = this;
         this.setState({ isSharing: !this.state.isSharing });
         if (!this.state.isSharing) {
+            tickEvent("holidays.share");
             window.location.hash = encode_1.encodeProgram(this.currentProject.text["main.blocks"]);
             this.setState({ shareURL: window.location.href });
             this.sendMessage("proxytosim", {
@@ -45198,6 +45214,7 @@ var MainApp = (function (_super) {
             this.beginSharing();
         }
         else {
+            tickEvent("holidays.remix");
             window.location.hash = '';
             this.setState({ loadShareURL: undefined });
             this.sendMessage("proxytosim", {
@@ -45216,10 +45233,11 @@ var MainApp = (function (_super) {
         }, 300);
     };
     MainApp.prototype.play = function () {
-        gtag('event', 'play', { 'method': 'sim' });
+        tickEvent("holidays.playbutton");
         this.sendMessage("startsimulator", {});
     };
     MainApp.prototype.copy = function () {
+        tickEvent("holidays.copyLink");
         var copyForm = document.getElementById('share-url');
         copyForm.focus();
         copyForm.select();
@@ -45236,53 +45254,28 @@ var MainApp = (function (_super) {
         return window.open(url, title, "resizable=no, copyhistory=no, " +
             ("width=" + width + ", height=" + height + ", top=" + ((screen.height / 2) - (height / 2)) + ", left=" + ((screen.width / 2) - (width / 2))));
     };
-    MainApp.prototype.createCookie = function (name, value, days) {
-        var expires;
-        if (days) {
-            var date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            expires = "; expires=" + date.toGMTString();
-        }
-        else {
-            expires = "";
-        }
-        document.cookie = name + "=" + value + expires + "; path=/";
-    };
-    MainApp.prototype.readCookie = function (name) {
-        var nameEQ = name + "=";
-        var ca = document.cookie.split(';');
-        for (var i = 0; i < ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) === ' ') {
-                c = c.substring(1, c.length);
-            }
-            if (c.indexOf(nameEQ) === 0) {
-                return c.substring(nameEQ.length, c.length);
-            }
-        }
-        return null;
-    };
-    MainApp.prototype.closeCookie = function () {
-        this.setState({ cookieMsg: true });
-        this.createCookie("makecode-holiday-cookie-msg", "true", 30);
-    };
     MainApp.prototype.handleHomeClick = function () {
+        tickEvent("holidays.home");
         this.setState({ sidebarVisible: false });
     };
     MainApp.prototype.handleLegalLinkClick = function () {
+        tickEvent("holidays.termsOfUse");
         window.open("https://www.microsoft.com/en-us/legal/intellectualproperty/copyright/default.aspx");
     };
     MainApp.prototype.handleTermsLinkClick = function () {
+        tickEvent("holidays.privacy");
         window.open("https://privacy.microsoft.com/en-us/privacystatement");
     };
     MainApp.prototype.handleCreditsClick = function () {
+        tickEvent("holidays.openAbout");
         this.setState({ isCreditsOpen: true, sidebarVisible: false });
     };
     MainApp.prototype.handleCreditsClose = function () {
+        tickEvent("holidays.closeAbout");
         this.setState({ isCreditsOpen: false });
     };
     MainApp.prototype.render = function () {
-        var _a = this.state, sidebarVisible = _a.sidebarVisible, isLoading = _a.isLoading, isSharing = _a.isSharing, shareURL = _a.shareURL, loadShareURL = _a.loadShareURL, isCreditsOpen = _a.isCreditsOpen, cookieMsg = _a.cookieMsg;
+        var _a = this.state, sidebarVisible = _a.sidebarVisible, isLoading = _a.isLoading, isSharing = _a.isSharing, shareURL = _a.shareURL, loadShareURL = _a.loadShareURL, isCreditsOpen = _a.isCreditsOpen;
         return React.createElement(semantic_ui_react_1.Sidebar.Pushable, null,
             React.createElement(semantic_ui_react_1.Sidebar, { as: semantic_ui_react_1.Menu, animation: 'scale down', width: 'thin', visible: sidebarVisible, icon: 'labeled', vertical: true, inverted: true },
                 React.createElement(semantic_ui_react_1.Menu.Item, { name: 'home', onClick: this.handleHomeClick },
@@ -45330,11 +45323,6 @@ var MainApp = (function (_super) {
                     React.createElement(semantic_ui_react_1.Form, { size: 'huge' },
                         React.createElement(semantic_ui_react_1.Form.Field, null,
                             React.createElement(semantic_ui_react_1.Input, { label: React.createElement(semantic_ui_react_1.Button, { content: 'Copy', color: 'green', onClick: this.copy }), labelPosition: 'right', id: "share-url", value: shareURL })))) : undefined,
-                !cookieMsg ?
-                    React.createElement("div", { className: "ui inline cookie-msg" },
-                        "By using this site you agree to the use of cookies for analytics. ",
-                        React.createElement("a", { href: "https://privacy.microsoft.com/en-us/privacystatement", target: "_blank", rel: "noopener noreferrer" }, "Learn More"),
-                        React.createElement(semantic_ui_react_1.Icon, { name: "close", onClick: this.closeCookie })) : undefined,
                 isSharing ? React.createElement(semantic_ui_react_1.Segment, { className: "sharing-footer", inverted: true, vertical: true, style: { padding: '1em 0em' } },
                     React.createElement(semantic_ui_react_1.Container, null,
                         React.createElement(semantic_ui_react_1.Grid, { divided: true, inverted: true, stackable: true, centered: true },
