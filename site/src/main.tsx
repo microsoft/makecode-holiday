@@ -9,9 +9,33 @@ import { decodeProgram, encodeProgram } from "./encode";
 
 declare let snowFall: any;
 
-declare let Tone: any;
+declare namespace pxt {
+    function aiTrackEvent(id: string, props?: {[index: string] : string}, measures?: {[index: string] : number}): void;
+}
 
-declare let gtag: any;
+
+function tickEvent(id: string, data?: {[index: string] : (string | number)}): void {
+    if (!data) pxt.aiTrackEvent(id);
+    else {
+        const props: {[index: string] : string} = {
+            "isMakeCodeHolidays": "true"
+        };
+        const measures: {[index: string] : number}= {}
+
+        for (const key of Object.keys(data)) {
+            if (typeof data[key] == "string") {
+                props[key] = data[key] as string;
+            }
+            else if (typeof data[key] == "number") {
+                measures[key] = data[key] as number;
+            }
+            else {
+                props[key] = JSON.stringify(data[key]);
+            }
+        }
+        pxt.aiTrackEvent(id, props, measures);
+    }
+};
 
 export interface MainAppProps {
 }
@@ -23,7 +47,6 @@ export interface MainAppState {
     shareURL?: string;
     loadShareURL?: string;
     isCreditsOpen?: boolean;
-    cookieMsg?: boolean;
 }
 
 export class MainApp extends React.Component<MainAppProps, MainAppState> {
@@ -41,15 +64,13 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
     constructor(props: MainAppProps) {
         super(props);
 
-        const hasCookie = this.readCookie("makecode-holiday-cookie-msg");
 
         const shareURL = window.location.hash ? window.location.hash.substring(1) : undefined;
         this.state = {
             isLoading: true,
             loadShareURL: shareURL,
             shareURL: undefined,
-            isSharing: !!shareURL,
-            cookieMsg: !!hasCookie
+            isSharing: !!shareURL
         }
 
 
@@ -84,7 +105,6 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
 
         this.copy = this.copy.bind(this);
         this.play = this.play.bind(this);
-        this.closeCookie = this.closeCookie.bind(this);
         this.startOver = this.startOver.bind(this);
         this.toggleSidebar = this.toggleSidebar.bind(this);
         this.handleFacebook = this.handleFacebook.bind(this);
@@ -231,7 +251,7 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
                         editor.postMessage(msg, "*")
                         this.loaded = true;
                         if (!this.state.loadShareURL) this.setState({ isLoading: false });
-                        gtag('event', 'lookup', { 'method': 'gist' });
+                        tickEvent("holidays.loadedShareURL")
                     } else {
                         const currentProject = localStorage.getItem('currentProject');
                         if (currentProject) {
@@ -303,7 +323,7 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
     }
 
     startOver() {
-        gtag('event', 'startover', { 'method': 'sim' });
+        tickEvent("holidays.startover");
         if (this.isSharing()) this.toggleSharing();
         this.initDefaultProject();
         this.sendMessage('importproject', {
@@ -311,18 +331,11 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
             filters: this.filters,
             response: true
         })
-        // this.toggleTrace();
     }
-
-    private text: string = "";
-    private background: string = "FE6666";
-    private lightBuffer: string[] = ["0xffce54", "0xed5564", "0xa0d468"];
-    private showLights: boolean = false;
-    private lightAnimation: number;
 
     handleFacebook() {
         console.log("sharing with facebook");
-        gtag('event', 'sharingfb', { 'method': 'facebook' });
+        tickEvent("holidays.facebook");
         const url = window.location.href;
         const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
         this.popupWindow(fbUrl, "Share on Facebook", 600, 600);
@@ -330,7 +343,7 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
 
     handleTwitter() {
         console.log("sharing with twitter");
-        gtag('event', 'sharingtw', { 'method': 'twitter' });
+        tickEvent("holidays.twitter");
         const url = window.location.href;
         const twitterText = "Check out what I made with @MSMakeCode (experimental)!";
         const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}` +
@@ -389,6 +402,7 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
     toggleSharing() {
         this.setState({ isSharing: !this.state.isSharing });
         if (!this.state.isSharing) {
+            tickEvent("holidays.share");
 
             window.location.hash = encodeProgram(this.currentProject.text["main.blocks"]);
             // Set form url to path
@@ -399,6 +413,7 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
             });
             this.beginSharing();
         } else {
+            tickEvent("holidays.remix");
             window.location.hash = '';
             this.setState({ loadShareURL: undefined });
             this.sendMessage("proxytosim", {
@@ -418,11 +433,12 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
     }
 
     play() {
-        gtag('event', 'play', { 'method': 'sim' });
+        tickEvent("holidays.playbutton");
         this.sendMessage("startsimulator", {});
     }
 
     copy() {
+        tickEvent("holidays.copyLink");
         const copyForm = document.getElementById('share-url') as HTMLInputElement;
         copyForm.focus();
         copyForm.select();
@@ -441,58 +457,28 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
             `width=${width}, height=${height}, top=${(screen.height / 2) - (height / 2)}, left=${(screen.width / 2) - (width / 2)}`);
     }
 
-    // Create cookie
-    createCookie(name: any, value: any, days: any) {
-        let expires;
-        if (days) {
-            let date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            expires = "; expires=" + (date as any).toGMTString();
-        }
-        else {
-            expires = "";
-        }
-        document.cookie = name + "=" + value + expires + "; path=/";
-    }
-
-    // Read cookie
-    readCookie(name: any) {
-        let nameEQ = name + "=";
-        let ca = document.cookie.split(';');
-        for (let i = 0; i < ca.length; i++) {
-            let c = ca[i];
-            while (c.charAt(0) === ' ') {
-                c = c.substring(1, c.length);
-            }
-            if (c.indexOf(nameEQ) === 0) {
-                return c.substring(nameEQ.length, c.length);
-            }
-        }
-        return null;
-    }
-
-    closeCookie() {
-        this.setState({ cookieMsg: true });
-        this.createCookie("makecode-holiday-cookie-msg", "true", 30);
-    }
-
     handleHomeClick() {
+        tickEvent("holidays.home");
         this.setState({ sidebarVisible: false });
     }
 
     handleLegalLinkClick() {
+        tickEvent("holidays.termsOfUse");
         window.open("https://www.microsoft.com/en-us/legal/intellectualproperty/copyright/default.aspx");
     }
 
     handleTermsLinkClick() {
+        tickEvent("holidays.privacy");
         window.open("https://privacy.microsoft.com/en-us/privacystatement");
     }
 
     handleCreditsClick() {
+        tickEvent("holidays.openAbout");
         this.setState({ isCreditsOpen: true, sidebarVisible: false });
     }
 
     handleCreditsClose() {
+        tickEvent("holidays.closeAbout");
         this.setState({ isCreditsOpen: false });
     }
 
@@ -501,7 +487,7 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
     }
 
     render() {
-        const { sidebarVisible, isLoading, isSharing, shareURL, loadShareURL, isCreditsOpen, cookieMsg } = this.state;
+        const { sidebarVisible, isLoading, isSharing, shareURL, loadShareURL, isCreditsOpen } = this.state;
 
         return <Sidebar.Pushable>
             <Sidebar as={Menu} animation='scale down' width='thin' visible={sidebarVisible} icon='labeled' vertical inverted>
@@ -581,12 +567,6 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
                         </Form.Field>
                     </Form>
                 </div> : undefined}
-
-                {!cookieMsg ?
-                    <div className="ui inline cookie-msg">
-                        By using this site you agree to the use of cookies for analytics. <a href="https://privacy.microsoft.com/en-us/privacystatement" target="_blank" rel="noopener noreferrer">Learn More</a>
-                        <Icon name="close" onClick={this.closeCookie} />
-                    </div> : undefined}
 
                 {isSharing ? <Segment className="sharing-footer" inverted vertical style={{ padding: '1em 0em' }}>
                     <Container>
