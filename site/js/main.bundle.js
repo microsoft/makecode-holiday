@@ -45260,11 +45260,11 @@ var MainApp = (function (_super) {
     };
     MainApp.prototype.handleLegalLinkClick = function () {
         tickEvent("holidays.termsOfUse");
-        window.open("https://www.microsoft.com/en-us/legal/intellectualproperty/copyright/default.aspx");
+        window.open("https://go.microsoft.com/fwlink/?LinkID=206977");
     };
     MainApp.prototype.handleTermsLinkClick = function () {
         tickEvent("holidays.privacy");
-        window.open("https://privacy.microsoft.com/en-us/privacystatement");
+        window.open("https://go.microsoft.com/fwlink/?LinkId=521839");
     };
     MainApp.prototype.handleCreditsClick = function () {
         tickEvent("holidays.openAbout");
