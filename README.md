@@ -1,14 +1,51 @@
-# Project
+# MakeCode Holiday editor
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+### Setting up the dev environment
 
-As the maintainer of this project, please make a few updates:
+Install pxt:
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+```
+npm install -g pxt
+```
+
+Install node_modules:
+
+```
+npm install
+cd site
+npm install
+```
+
+### Building the react app
+
+You must manually build this before serving locally or publishing a release
+
+```
+cd site
+npx webpack
+```
+
+### Local serving the target
+
+*Note: To see changes to the webapp, make sure you run webpack first (see above).*
+
+To local serve:
+
+```
+pxt serve
+```
+
+Then navigate to http://localhost:3232/controller.html
+
+
+### Publishing an update to GitHub Pages
+
+```
+cd site
+npx webpack
+cd ..
+pxt staticpkg --gh --bump
+```
 
 ## Contributing
 
@@ -26,8 +63,8 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
+trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.
