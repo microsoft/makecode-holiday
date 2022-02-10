@@ -28,7 +28,7 @@
     "noSourceInFlash": true
   },
   "versions": {
-    "target": "5.0.0",
+    "target": "5.0.1",
     "pxt": "5.2.13"
   },
   "blocksprj": {
