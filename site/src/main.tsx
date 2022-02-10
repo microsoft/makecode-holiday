@@ -464,12 +464,12 @@ export class MainApp extends React.Component<MainAppProps, MainAppState> {
 
     handleLegalLinkClick() {
         tickEvent("holidays.termsOfUse");
-        window.open("https://www.microsoft.com/en-us/legal/intellectualproperty/copyright/default.aspx");
+        window.open("https://go.microsoft.com/fwlink/?LinkID=206977");
     }
 
     handleTermsLinkClick() {
         tickEvent("holidays.privacy");
-        window.open("https://privacy.microsoft.com/en-us/privacystatement");
+        window.open("https://go.microsoft.com/fwlink/?LinkId=521839");
     }
 
     handleCreditsClick() {
